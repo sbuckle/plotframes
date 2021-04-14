@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"log"
@@ -16,13 +17,26 @@ type Frame struct {
 }
 
 func main() {
-	f, err := os.Open("frames.xml")
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: plotframes [FILE]")
+		os.Exit(1)
+	}
+
+	args := []string{
+		"-show_entries",
+		"frame",
+		"-select_streams",
+		"v:0",
+		"-of",
+		"xml",
+		os.Args[1],
+	}
+	out, err := exec.Command("ffprobe", args...).Output()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
 
-	decoder := xml.NewDecoder(f)
+	decoder := xml.NewDecoder(bytes.NewReader(out))
 	var elem string
 	var frames []Frame
 	for {
@@ -56,7 +70,7 @@ func main() {
 	}
 
 	// Generate the gnu plot script
-	f, err = os.CreateTemp("", "")
+	f, err := os.CreateTemp("", "")
 	if err != nil {
 		log.Fatal(err)
 	}
