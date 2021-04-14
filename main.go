@@ -2,11 +2,14 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
+	"text/template"
 )
 
 type Frame struct {
@@ -15,6 +18,9 @@ type Frame struct {
 	PktSize  int    `xml:"pkt_size,attr"`
 	Count    int
 }
+
+//go:embed script.tmpl
+var tmpl string
 
 func main() {
 	if len(os.Args) < 2 {
@@ -69,22 +75,7 @@ func main() {
 		fmt.Fprintf(f, "%d %d\n", frame.Count, frame.PktSize*8/1000)
 	}
 
-	// Generate the gnu plot script
-	f, err := os.CreateTemp("", "")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer os.Remove(f.Name())
-
-	const header = `set title "video frame sizes"
-set xlabel "frame time"
-set ylabel "frame size (Kbits)"
-set grid
-set terminal x11
-	`
-	fmt.Fprintln(f, header)
-	fmt.Fprint(f, "plot ")
-
+	var sb strings.Builder
 	linecolors := map[string]string{
 		"I": "red",
 		"P": "green",
@@ -92,9 +83,22 @@ set terminal x11
 	}
 	sep := ""
 	for pictType, val := range plots {
-		fmt.Fprintf(f, "%s \"%s\" title \"%s frames\" with impulses linecolor rgb \"%s\"",
+		fmt.Fprintf(&sb, "%s \"%s\" title \"%s frames\" with impulses linecolor rgb \"%s\"",
 			sep, val.Name(), pictType, linecolors[pictType])
 		sep = ","
+	}
+
+	// Generate the gnu plot script
+	f, err := os.CreateTemp("", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(f.Name())
+
+	t := template.Must(template.New("script").Parse(tmpl))
+	err = t.Execute(f, sb.String())
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Run gunplot
