@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -22,8 +23,14 @@ type Frame struct {
 //go:embed script.tmpl
 var tmpl string
 
+var (
+	term   = flag.String("t", "x11", "Terminal type")
+	output = flag.String("o", "", "Set the name of the output file")
+)
+
 func main() {
-	if len(os.Args) < 2 {
+	flag.Parse()
+	if len(flag.Args()) < 1 {
 		fmt.Println("Usage: plotframes [FILE]")
 		os.Exit(1)
 	}
@@ -35,7 +42,7 @@ func main() {
 		"v:0",
 		"-of",
 		"xml",
-		os.Args[1],
+		flag.Arg(0),
 	}
 	out, err := exec.Command("ffprobe", args...).Output()
 	if err != nil {
@@ -96,7 +103,16 @@ func main() {
 	defer os.Remove(f.Name())
 
 	t := template.Must(template.New("script").Parse(tmpl))
-	err = t.Execute(f, sb.String())
+	var data struct {
+		Cmd    string
+		Term   string
+		Output string
+	}
+	data.Cmd = sb.String()
+	data.Term = *term
+	data.Output = *output
+
+	err = t.Execute(f, data)
 	if err != nil {
 		log.Fatal(err)
 	}
