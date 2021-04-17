@@ -1,8 +1,6 @@
 require 'rake'
 require 'rake/clean'
 
-TARGET = Rake::FileList.new("plotframes*")
-
 task default: %w[build]
 
 desc 'Build the executable'
@@ -15,4 +13,4 @@ task :install do
   sh "go install"
 end
 
-CLEAN << TARGET
+CLEAN.include('plotframes*')
