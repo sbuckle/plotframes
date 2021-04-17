@@ -24,7 +24,7 @@ type Frame struct {
 var tmpl string
 
 var (
-	term   = flag.String("t", "x11", "Terminal type")
+	term   = flag.String("t", DefaultTerminal, "Terminal type")
 	output = flag.String("o", "", "Set the name of the output file")
 )
 
