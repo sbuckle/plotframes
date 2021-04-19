@@ -77,6 +77,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err) // abort
 			}
+			defer os.Remove(f.Name())
 			plots[frame.PictType] = f
 		}
 		fmt.Fprintf(f, "%d %d\n", frame.Count, frame.PktSize*8/1000)
