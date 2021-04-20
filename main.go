@@ -26,6 +26,7 @@ var tmpl string
 var (
 	term   = flag.String("t", DefaultTerminal, "Terminal type")
 	output = flag.String("o", "", "Set the name of the output file")
+	stream = flag.String("s", "v", "Specify stream. Default value is \"v\"")
 )
 
 func main() {
@@ -39,7 +40,7 @@ func main() {
 		"-show_entries",
 		"frame",
 		"-select_streams",
-		"v:0",
+		*stream,
 		"-of",
 		"xml",
 		flag.Arg(0),
