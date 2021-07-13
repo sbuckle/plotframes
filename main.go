@@ -38,7 +38,7 @@ func main() {
 
 	args := []string{
 		"-show_entries",
-		"frame",
+		"frame=pict_type,key_frame,pkt_size",
 		"-select_streams",
 		*stream,
 		"-of",
