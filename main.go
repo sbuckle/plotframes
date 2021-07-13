@@ -30,6 +30,13 @@ var (
 )
 
 func main() {
+	for _, p := range []string{"ffprobe", "gnuplot"} {
+		if _, err := exec.LookPath(p); err != nil {
+			fmt.Fprintf(os.Stderr, "'%s' must be installed. Couldn't find it on the system path.\n", p)
+			os.Exit(1)
+		}
+	}
+
 	flag.Parse()
 	if len(flag.Args()) < 1 {
 		fmt.Println("Usage: plotframes [FILE]")
