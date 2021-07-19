@@ -24,10 +24,16 @@ type Frame struct {
 var tmpl string
 
 var (
-	term   = flag.String("t", DefaultTerminal, "Terminal type")
-	output = flag.String("o", "", "Set the name of the output file")
-	stream = flag.String("s", "v", "Specify stream. Default value is \"v\"")
+	term   string
+	output string
+	stream string
 )
+
+func init() {
+	flag.StringVar(&term, "t", DefaultTerminal, "Terminal type")
+	flag.StringVar(&output, "o", "", "Set the name of the output file")
+	flag.StringVar(&stream, "s", "v", `Specify stream. Default value is "v"`)
+}
 
 func main() {
 	for _, p := range []string{"ffprobe", "gnuplot"} {
@@ -47,7 +53,7 @@ func main() {
 		"-show_entries",
 		"frame=pict_type,key_frame,pkt_size",
 		"-select_streams",
-		*stream,
+		stream,
 		"-of",
 		"xml",
 		flag.Arg(0),
@@ -118,8 +124,8 @@ func main() {
 		Output string
 	}
 	data.Cmd = sb.String()
-	data.Term = *term
-	data.Output = *output
+	data.Term = term
+	data.Output = output
 
 	err = t.Execute(f, data)
 	if err != nil {
