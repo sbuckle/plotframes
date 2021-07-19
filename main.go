@@ -4,13 +4,14 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/xml"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"text/template"
+
+	flag "github.com/spf13/pflag"
 )
 
 type Frame struct {
@@ -30,9 +31,9 @@ var (
 )
 
 func init() {
-	flag.StringVar(&term, "t", DefaultTerminal, "Terminal type")
-	flag.StringVar(&output, "o", "", "Set the name of the output file")
-	flag.StringVar(&stream, "s", "v", `Specify stream. Default value is "v"`)
+	flag.StringVarP(&term, "terminal", "t", DefaultTerminal, "Terminal type")
+	flag.StringVarP(&output, "output", "o", "", "Set the name of the output file")
+	flag.StringVarP(&stream, "stream", "s", "v", `Specify stream. Default value is "v"`)
 }
 
 func main() {
