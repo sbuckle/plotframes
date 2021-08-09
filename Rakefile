@@ -13,4 +13,4 @@ task :install do
   sh "go install"
 end
 
-CLEAN.include('plotframes*')
+CLEAN.include('plotframes')
